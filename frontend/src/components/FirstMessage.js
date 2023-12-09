@@ -6,6 +6,8 @@ export default function FirstMessage() {
   const { user, setChats, chats } = useAuth();
   const navigate = useNavigate();
   const qst = useRef(null);
+
+
   const handleCreate = async () => {
     if (qst.current.value.length == 0) {
       return console.log("empty message");
@@ -23,45 +25,56 @@ export default function FirstMessage() {
         },
         body: JSON.stringify({ ChatName: firstThreeWords }),
       });
+      const res = await fetch("http://127.0.0.1:5000/generate_response", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: qst.current.value })
+      })
+      const jawab = await res.json()
+
       response.json().then((res) => {
         console.log(res);
         navigate(`/Chat/${res._id}`);
+
+        const gptMessg = {
+          chatId: res._id,
+          content: jawab.response,
+          sender: 'GPT'
+        }
         fetch("http://localhost:3000/api/message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            chatId: res._id,
+            content: qst.current.value,
+          }),
+        }).then((res) => res.json()).then((res) => {
+          fetch("http://localhost:3000/api/message", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({
-                chatId: res._id,
-                content: qst.current.value,
-            }),
-            }).then((res) => res.json()).then((res) => {
-            console.log(res);
-            });
-            setChats([res,...chats]);
+            body: JSON.stringify(gptMessg),
+          })
         });
+        setChats([res, ...chats]);
+      });
     } catch (err) {
       console.log(err);
     }
   };
   return (
     <div className="hidden md:w-3/4 md:h-screen md:flex md:flex-col bg-white">
-      <div className="h-[10%] flex justify-start items-center px-4 gap-3 border-b-2 border-b-brown-dark/20">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-6 h-6 text-brown-dark"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-          />
-        </svg>
+      <div className="h-[10%] flex justify-start items-center px-4 gap-3 border-b-2 border-b-brown-dark/20 cursor-pointer font-bold " onClick={()=>{
+        navigate('/')
+      }}>
+        home
       </div>
       <div className="h-[90%] w-[3/4]   ">
         <div className="h-[90%] w-full flex flex-col justify-between pt-20 items-center">

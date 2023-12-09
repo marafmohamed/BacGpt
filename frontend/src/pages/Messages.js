@@ -52,6 +52,7 @@ export default function Messages() {
             if (chat._id == chatId) {
               chat.name = name;
             }
+            return chat;
           })
         );
       });

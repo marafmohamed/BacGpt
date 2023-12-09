@@ -48,6 +48,7 @@ export default function Chat() {
             chat.name = name;
             console.log(chat)
           }
+          return chat;
         }));
       });
     } catch (err) {

@@ -31,11 +31,25 @@ export default function MessegingRoom({ chatId }) {
       console.log(err);
     }
   }, [chatId.id]);
-  const handleSendMessage = () => {
+  const handleSendMessage =async() => {
     if (qst.current.value.length == 0) {
       return console.log("empty message");
     }
     const token = user.token;
+    const res=await fetch("http://127.0.0.1:5000/generate_response",{
+    method:"POST" , 
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body : JSON.stringify({text:qst.current.value})
+    })
+    const jawab= await res.json()
+    console.log(jawab);
+    const gptMessg={
+     chatId: chatId.id,
+     content:jawab.response,
+     sender:'GPT'
+    }
     fetch("http://localhost:3000/api/message", {
       method: "POST",
       headers: {
@@ -45,20 +59,34 @@ export default function MessegingRoom({ chatId }) {
       body: JSON.stringify({
         chatId: chatId.id,
         content: qst.current.value,
+        
       }),
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
-        setmessages([...messages, res]);
+        fetch("http://localhost:3000/api/message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(gptMessg),
+        }).then((rrr)=>{
+          rrr.json().then((rrrrr)=>{
+            setmessages([...messages, res,rrrrr]);
+          })
+        })
         qst.current.value = "";
       });
   };
   useEffect(() => {
+    console.log(messages)
+
     if (scrolll.current !== null) {
       scrolll.current.scrollIntoView({ behavior: "auto" });
     }
   }, [messages]);
+
   return (
     <div className=" h-screen w-screen  md:w-3/4 bg-white">
       <div className="Navbar h-[10%] border-b-2 border-brown-mid/20">
@@ -103,16 +131,16 @@ export default function MessegingRoom({ chatId }) {
               ref={scrolll}
                 key={message._id}
                 className={`chat   ${
-                  message.sender == user._id
+                  message.sender !== "GPT"
                     ? "chat-end"
                     : "chat-start"
                 }`}
               >
                 <div
                   className={`max-w-[50%]  bg-gray-lightest rounded-2xl px-3 py-4 break-words ${
-                    message.sender == user._id
+                    message.sender !== "GPT" 
                       ? "bg-green-mid text-white"
-                      : "bg-gray-lightest text-black"
+                      : " bg-brown-mid/40 text-black"
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>

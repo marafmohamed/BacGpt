@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       fontFamily: {
         custom: ["Urbanist", "sans-serif"],
+        Poppins: ["Poppins", "sans-serif"],
       },
       colors: {
         'green-lightest': '#E5EAD7',
