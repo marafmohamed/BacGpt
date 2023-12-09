@@ -20,7 +20,7 @@ const sendMessage = async (req, res) => {
     message = await Message.findOne({ _id: message._id })
       .populate("sender", "-Password")
       .populate("chat");
-    res.status(200).json({ message });
+    res.status(200).json(message );
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

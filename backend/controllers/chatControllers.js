@@ -55,9 +55,23 @@ const renameChat = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
-
+const DeleteChat = async (req, res) => {  
+  const { chatId } = req.body;
+  if (!chatId) {
+    return res.status(400).json({ error: "Chat doesn't exist" });
+  }
+  try {
+    const deletedChat = await Chat.findOneAndDelete(
+      { _id: chatId },
+    );
+    res.status(200).json(deletedChat);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
 module.exports = {
   CreateChat,
   GetChats,
-  renameChat
+  renameChat,
+  DeleteChat
 };
