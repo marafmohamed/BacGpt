@@ -6,7 +6,7 @@ export default function LandingPage(){
     const navigate = useNavigate();
 
     const handleBacGPTClick = () => {
-      navigate('/BacGPT');
+      navigate('/Signup');
     };
   
     const handleDawaratClick = () => {
